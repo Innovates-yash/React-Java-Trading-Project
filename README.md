@@ -1,183 +1,154 @@
-# React-Java-Trading-Project
+# Treading-Plateform
 
-Project tree (representative)
+Binance-like cryptocurrency trading platform — Spring Boot backend + React frontend (Vite + Redux).  
+Backend runs on port `5454`. Frontend is a Vite dev server.
 
-Treading-Plateform/
-.github/
-copilot-instructions.md
-Source Code/
-Backend-Spring boot/
-pom.xml
-Dockerfile
-mvnw, mvnw.cmd
-src/
-main/
-java/
-com/
-zosh/
-TreadingPlateformApplication.java
-controller/
-AuthController.java
-OrderController.java
-WalletController.java
-CoinController.java
-PaymentController.java
-AssetController.java
-ChatController.java
-service/
-AuthService.java
-CustomeUserServiceImplementation.java
-CoinService.java
-CoinServiceImpl.java
-WalletService.java
-OrderService.java
-PaymentService.java
-ChatBotServiceImpl.java
-DataInitializationComponent.java
-model/
-User.java
-Order.java
-Wallet.java
-Coin.java
-Asset.java
-TwoFactorAuth.java
-repository/
-UserRepository.java
-OrderRepository.java
-WalletRepository.java
-CoinRepository.java
-config/
-JwtProvider.java
-JwtTokenValidator.java
-AppConfig.java
-exception/
-GlobalExceptionHandler.java
-CustomErrorResponse.java
-request/
-AuthRequest.java
-OrderRequest.java
-response/
-ApiResponse.java
-AuthResponse.java
-resources/
-application.properties
-db/
-migrations/ (Flyway or SQL)
-test/
-java/
-com/
-zosh/
-TreadingPlateformApplicationTests.java
-Frontend-React/
-package.json
-package-lock.json
-vite.config.js
-tailwind.config.js
-postcss.config.js
-index.html
-public/
-src/
-main.jsx (or index.jsx)
-Api/
-api.js
-Redux/
-Store.js
-Auth/
-Action.js
-Reducer.js
-Coin/
-Order/
-Wallet/
-Asset/
-Watchlist/
-Withdrawal/
-Chat/
-pages/
-Auth/
-Login.jsx
-Signup.jsx
-Home/
-Wallet/
-PaymentDetailsForm.jsx
-Portfolio/
-Profile/
-Profile.jsx
-AccountVarificationForm.jsx
-Activity/
-Navbar/
-Navbar.jsx
-components/
-ui/
-button.jsx
-dialog.jsx
-badge.jsx
-card.jsx
-toast.jsx
-spinnerBackdrop.jsx
-custome/
-SpinnerBackdrop.jsx
-CustomeToast.jsx
-Util/
-date.js
-profitCalc.js
-watchlist.js
-assets/
-styles/
-README.md
-README.md
-.gitignore
-Detailed project summary
+---
 
-High-level purpose
-Binance-like crypto trading platform: web frontend (React + Vite) and Java Spring Boot backend (MySQL). Core domains: authentication, orders/trading, wallet/balances, coins/market data, payments, user profile & KYC, chat/bot.
-Backend (Backend-Spring boot)
-Tech: Spring Boot 3.2.x on Java 19, Spring Data JPA, MySQL, JJWT for JWT, Spring Mail, Stripe/Razorpay SDKs for payments.
-Package layout:
-controller: REST endpoints per domain (Auth, Orders, Wallet, Coin, Payment).
-service: business logic, transactional boundaries, third-party integrations.
-model: JPA entities (User, Wallet, Order, Coin, Asset, TwoFactorAuth).
-repository: Spring Data repositories for DB access.
-config: security & JWT (JwtProvider creates tokens with email + authorities, 24hr expiration; JwtTokenValidator validates bearer tokens; AppConfig wires security filter chain).
-exception: centralized exception handling with @ControllerAdvice.
-request/response: DTOs for input/output.
-Important flows:
-Auth: POST /api/auth/login -> JwtProvider builds JWT including email claim; response contains token.
-Protected APIs: JwtTokenValidator checks Authorization: Bearer <jwt>, extracts email and roles.
-Wallet/Orders: @Transactional service methods with locking or optimistic locking to prevent race conditions.
-Payments: PaymentController delegates to Stripe/Razorpay SDKs, uses webhooks for asynchronous confirmation.
-Config: application.properties contains DB credentials, mail, API keys. Backend default port: 5454.
-Frontend (Frontend-React)
-Tech: React 18, Vite, Redux + redux-thunk, React Hook Form + Yup/Zod, TailwindCSS, Radix UI wrappers, Axios for HTTP.
-Structure:
-Redux slices: Auth, Coin, Order, Wallet, Asset, etc. Store configured in Store.js using legacy_createStore and thunk.
-Api/api.js: Axios instance configured with baseURL http://localhost:5454 and interceptor to inject Authorization: Bearer <jwt> where jwt is localStorage.getItem('jwt').
-Pages & Components: pages/* for routes (Profile.jsx, Wallet, Home). UI primitives in components/ui and reusable components in components/custome.
-Key UI flows:
-Login/Signup: forms use React Hook Form; on success store token in localStorage key 'jwt' and load user into Redux.
-Profile (example): Profile.jsx shows user info, 2-step verification status and uses AccountVarificationForm to enable/verify OTP; dispatches enableTwoStepAuthentication and verifyOtp actions that call backend with jwt and otp.
-Live market data: market data fetched via Coin service; charts via ApexCharts/Recharts.
-Security pattern:
-JWT stored in localStorage under 'jwt'. Frontend includes it in Authorization header.
-Forms validated using Yup/Zod; backend revalidates inputs.
-Integrations & external systems
-CoinGecko (market data), Gemini/AI for chat (ChatBotServiceImpl on backend), Stripe/Razorpay for payments, Gmail SMTP for email (requires app password).
-Caching recommended for market data (e.g., Redis) in production.
-Dev & build
-Backend:
-mvn clean install
-mvn spring-boot:run (runs on port 5454)
-Configure application.properties before running (DB, mail, API keys)
-Frontend:
-npm i
-npm run dev (Vite)
-npm run build
-npm run lint
-Important conventions & debugging tips
-JWT expiry: 24 hours. If API calls fail, check localStorage 'jwt' and token expiration.
-Axios: single instance injects JWT automatically; inspect network requests in browser DevTools.
-State issues: check feature Reducer.js and Action.js for thunk patterns.
-Concurrency: use DB transactions + locking; for multi-service flows use SAGA/event-driven compensations.
-If frontend build or dependency errors: delete node_modules and package-lock.json then npm i.
-Notable file examples (quick references)
-Backend: com.zosh.config.JwtProvider.java (token creation), JwtTokenValidator.java (filter), AppConfig.java (security).
-Frontend: src/Api/api.js (axios), src/Redux/Auth/Action.js & Reducer.js, Profile.jsx (2FA & verify flows — uses enableTwoStepAuthentication and verifyOtp actions), package.json at Frontend-React root.
+## Table of Contents
+- About
+- Architecture (high level)
+- Repo layout (short)
+- Requirements
+- Environment / secrets
+- Quick start (Windows)
+  - Backend
+  - Frontend
+- Common tasks
+- Important files & flows
+- Security & operational notes
+- Contributing
+- License
+
+---
+
+## About
+This project implements a trading platform with core domains: Authentication, Orders/Matching, Wallets/Balances, Coins/Market Data, Payments, Profile/KYC and Chat. Designed as a production-ready codebase with modular services and clear patterns for microservice extraction.
+
+---
+
+## Architecture (high level)
+- Backend: Spring Boot 3.x, Spring Data JPA, MySQL, JJWT for JWT, transactional service layer.
+- Frontend: React 18, Vite, Redux (redux-thunk), React Hook Form + Yup/Zod, TailwindCSS, Radix UI primitives.
+- Integrations: CoinGecko (market data), Stripe/Razorpay (payments), Gmail SMTP (mail), external chat/AI provider.
+- Auth: JWT (24h), stored by frontend in `localStorage` (key `'jwt'`), sent as `Authorization: Bearer <jwt>`.
+
+---
+
+## Repo layout (representative)
+- Backend-Spring boot/
+  - src/main/java/com/zosh/
+    - controller/, service/, model/, repository/, config/, exception/, request/, response/
+  - src/main/resources/application.properties
+- Frontend-React/
+  - src/
+    - Api/api.js
+    - Redux/ (Store.js, Auth, Coin, Order, Wallet, ...)
+    - pages/ (Auth, Profile, Wallet, Home, ...)
+    - components/ui/, components/custome/
+  - index.html, package.json
+
+---
+
+## Requirements
+- Java 19 (or matching configured JDK)
+- Maven 3.8+
+- Node.js 18+ and npm
+- MySQL (create database `treading`)
+- (Optional) Docker if you prefer containerized run
+
+---
+
+## Environment / required properties
+Update `Backend-Spring boot/src/main/resources/application.properties` (or external env) with:
+- spring.datasource.url=jdbc:mysql://localhost:3306/treading
+- spring.datasource.username=
+- spring.datasource.password=
+- spring.mail.username=
+- spring.mail.password=    (Gmail app password)
+- stripe.api.key=
+- razorpay.key=
+- coinGecko.api.key (if used)
+- gemini.api.key / gemini.secret (if used)
+- jwt.secret (used by JwtProvider)
+
+Frontend: adjust base API url in `Frontend-React/src/Api/api.js` if backend host/port differs (default: `http://localhost:5454`).
+
+---
+
+## Quick start (Windows)
+
+1. Start MySQL & create DB:
+   - Use MySQL Workbench / CLI to create database `treading`.
+
+2. Backend
+   ```powershell
+   cd "c:\Users\Yash Gupta\IdeaProjects\Treading-Plateform\Source Code\Backend-Spring boot"
+   # edit application.properties with credentials & API keys
+   mvn clean install
+   mvn spring-boot:run
+   ```
+   Backend listens on: http://localhost:5454
+
+3. Frontend
+   ```powershell
+   cd "c:\Users\Yash Gupta\IdeaProjects\Treading-Plateform\Source Code\Frontend-React"
+   npm install
+   npm run dev
+   ```
+   Vite dev server will start (open printed URL, typically http://localhost:5173).
+
+---
+
+## Common tasks
+- Build backend: `mvn clean package`
+- Run backend tests: `mvn test`
+- Format & lint frontend: `npm run lint`
+- Build frontend for production: `npm run build`
+
+---
+
+## Important files & flows
+- Backend
+  - JwtProvider.java — creates JWT with `email` + `authorities`, 24h expiration.
+  - JwtTokenValidator.java — request filter validating Bearer token.
+  - AppConfig.java — Spring Security config.
+  - Controllers: `/api/auth`, `/api/orders`, `/api/wallet`, `/api/payment`, etc.
+- Frontend
+  - src/Api/api.js — Axios instance that auto-injects the JWT from `localStorage.getItem('jwt')`.
+  - src/Redux/Store.js — application Redux store (legacy_createStore + thunk).
+  - src/pages/Profile/Profile.jsx — example of 2FA flows & dialogs (uses AccountVarificationForm).
+  - Key UI components: `components/ui/*` and `components/custome/*`.
+
+---
+
+## Security & operational notes
+- JWT stored client-side under key `'jwt'`. Rotate secret and keep short-lived tokens in production; implement refresh tokens or blacklist for revocation.
+- Do not commit secrets/API keys. Use environment variables or a secret manager in CI/CD.
+- Use Flyway or Liquibase for DB migrations in production (avoid Hibernate ddl-auto = update).
+- Use HTTPS in production. Configure CORS and rate limiting for public endpoints.
+
+---
+
+## Testing & CI
+- Backend: unit tests with JUnit + Mockito; integration tests with @SpringBootTest (recommended: Testcontainers).
+- Frontend: add Jest/React Testing Library for component/unit tests.
+- CI suggestion: run maven build & tests, install frontend deps, run lint, run frontend build, then dockerize artifacts.
+
+---
+
+## Contributing
+- Fork → branch named `feature/<short-desc>` → PR with description & tests.
+- Keep controller changes backwards-compatible and add API versioning (e.g., `/api/v1/...`) for breaking changes.
+
+---
+
+## License
+Add a LICENSE file as appropriate (e.g., MIT). This repo currently has no license inlined here.
+
+---
+
+If you want, I can:
+- Generate a GitHub Actions workflow to build backend + frontend.
+- Create a .env.example and sample application.properties with placeholders.
+- Add a Docker Compose for local full-stack with MySQL.
